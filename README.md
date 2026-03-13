@@ -17,18 +17,21 @@ The project follows an incremental workflow:
 5. Full preprocessing pipeline with numerical and categorical features
 6. Ridge regularization and hyperparameter tuning
 7. Polynomial feature expansion on selected variables
-8. Final refit on the full training set and Kaggle submission
-9. Cross-validation-based model selection
+8. Cross-validation-based model selection
+9. Lasso regularization and implicit feature selection
+10. Final refit on the full training set and Kaggle submission
 
 ## 📂 Repository Structure
 
 ```text
 house-prices-ml/
 ├── notebooks/
-│   └── 01_baseline_linear_regression.ipynb
+│   ├── 01_baseline_linear_regression.ipynb
+│   └── 02_lasso_feature_selection.ipynb
 ├── submissions/
 │   ├── submission_poly_ridge_alpha_0_5.csv
-│   └── submission_poly_ridge_alpha_2_0_cv.csv
+│   ├── submission_poly_ridge_alpha_2_0_cv.csv
+│   └── submission_lasso_alpha_0_0003_cv.csv
 ├── data/                     # local Kaggle files (ignored from Git)
 ├── .gitignore
 └── README.md
@@ -112,7 +115,45 @@ Two key versions of this model were tested:
 - **CV standard deviation:** **`0.014357`**
 - **Kaggle public score:** **`0.12691`**
 
+### 5. Polynomial Lasso Regression on the Same Feature Representation
+To compare different regularization strategies while keeping the same feature engineering setup, Lasso regression was tested on top of the same polynomial feature representation used by the best Ridge model.
+
+Pipeline:
+- Polynomial features of degree 2 on:
+  - `GrLivArea`
+  - `OverallQual`
+  - `TotalBsmtSF`
+  - `GarageArea`
+- Remaining numerical variables:
+  - median imputation
+  - standard scaling
+- Categorical variables:
+  - most-frequent imputation
+  - one-hot encoding
+- Model:
+  - Lasso Regression
+
+Hyperparameter tuning:
+- tested with **5-fold cross-validation**
+- best value: **`alpha = 0.0003`**
+
+Results:
+- **Mean CV RMSE:** **`0.123856`**
+- **CV standard deviation:** **`0.019443`**
+- **Kaggle public score:** **`0.12354`**
+
 This is the **current best model so far** in the project.
+
+### Feature Selection Effect of Lasso
+One of the main theoretical motivations for trying Lasso is that **L1 regularization** can shrink some coefficients exactly to zero, performing implicit feature selection.
+
+For the best Lasso model:
+- **Total transformed features:** `297`
+- **Non-zero coefficients:** `143`
+- **Zero coefficients:** `154`
+- **Sparsity:** **`51.85%`**
+
+This means that the model kept only about half of the transformed features, while still improving Kaggle performance over Polynomial Ridge.
 
 ## 🏁 Kaggle Submission Results
 
@@ -144,6 +185,23 @@ This is the **current best model so far** in the project.
 - Kaggle public score: **`0.12691`**
 
 The second submission improved over the first one, showing that cross-validation led to a better and more robust hyperparameter choice.
+
+### Submission 3
+**File:** `submission_lasso_alpha_0_0003_cv.csv`
+
+**Model:**
+- Polynomial Lasso regression
+- same feature representation as the best Polynomial Ridge model
+- degree 2 on selected numerical features
+- `alpha = 0.0003`
+- selected by **5-fold cross-validation**
+- target: `log(SalePrice)`
+
+**Results:**
+- Mean CV RMSE: **`0.123856`**
+- Kaggle public score: **`0.12354`**
+
+This submission improved over both previous Ridge submissions, making Lasso the strongest model explored so far.
 
 ## 🛠️ Tools Used
 
@@ -201,10 +259,11 @@ pip install pandas numpy matplotlib scikit-learn jupyter
 jupyter notebook
 ```
 
-6. Open the notebook:
+6. Open one of the notebooks:
 
 ```text
 notebooks/01_baseline_linear_regression.ipynb
+notebooks/02_lasso_feature_selection.ipynb
 ```
 
 ## 📈 What I Learned from This Project
@@ -216,19 +275,21 @@ Through this project I practiced how key ML concepts translate into a real regre
 - understanding why log-transforming the target can help
 - handling missing values correctly
 - encoding categorical variables for linear models
-- comparing training and validation performance
+- comparing training, validation, and cross-validation performance
 - understanding overfitting and the role of regularization
-- seeing why scaling is important for Ridge regression
+- seeing why scaling is important for Ridge and Lasso regression
 - applying polynomial feature expansion as a basis-function approach
 - using cross-validation for more robust model selection
+- understanding the difference between Ridge and Lasso
+- observing how Lasso can perform implicit feature selection
 - building a complete pipeline from exploration to Kaggle submission
 
 ## 🚀 Next Steps
 
-- clean up and rename the notebook structure as the project grows
+- test ElasticNet as a compromise between Ridge and Lasso
 - add model comparison tables and plots
 - try more systematic feature engineering on numerical variables
-- test stronger tabular models after consolidating the linear-model workflow
+- organize notebook naming and project structure as the repository grows
 - improve project documentation and presentation for GitHub/portfolio purposes
 
 ---
