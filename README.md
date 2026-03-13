@@ -2,7 +2,7 @@
 
 Machine learning project based on the Kaggle competition **House Prices: Advanced Regression Techniques**.
 
-This repository documents a step-by-step approach to solving a real tabular regression problem using concepts studied in a university Machine Learning course, starting from linear regression and progressively improving the model through preprocessing, feature representation, and regularization.
+This repository documents a step-by-step approach to solving a real tabular regression problem using concepts studied in a university Machine Learning course. The project starts from a simple linear regression baseline and progressively improves through preprocessing, feature engineering, and regularization.
 
 ## 📌 Project Overview
 
@@ -16,6 +16,8 @@ The project follows an incremental workflow:
 4. Baseline linear regression
 5. Full preprocessing pipeline with numerical and categorical features
 6. Ridge regularization and hyperparameter tuning
+7. Polynomial feature expansion on selected variables
+8. Final refit on the full training set and Kaggle submission
 
 ## 📂 Repository Structure
 
@@ -23,7 +25,8 @@ The project follows an incremental workflow:
 house-prices-ml/
 ├── notebooks/
 │   └── 01_baseline_linear_regression.ipynb
-├── submissions/              # local submission files
+├── submissions/
+│   └── submission_poly_ridge_alpha_0_5.csv
 ├── data/                     # local Kaggle files (ignored from Git)
 ├── .gitignore
 └── README.md
@@ -45,7 +48,7 @@ Since the target distribution is strongly right-skewed, the models are trained o
 
 - `log(SalePrice)`
 
-This is also consistent with the Kaggle evaluation metric.
+This makes the regression problem more stable and is also aligned with the Kaggle evaluation setting.
 
 ## 🧠 Models Explored So Far
 
@@ -76,7 +79,42 @@ This is also consistent with the Kaggle evaluation metric.
 - Model:
   - Ridge Regression with tuned `alpha`
 
-**Best validation RMSE so far:** ~`0.12740` with `alpha = 0.05`
+**Best validation RMSE:** ~`0.12740` with `alpha = 0.05`
+
+### 4. Polynomial Ridge Regression on Selected Features
+- Polynomial features of degree 2 applied only to:
+  - `GrLivArea`
+  - `OverallQual`
+  - `TotalBsmtSF`
+  - `GarageArea`
+- Remaining numerical variables:
+  - median imputation
+  - standard scaling
+- Categorical variables:
+  - most-frequent imputation
+  - one-hot encoding
+- Model:
+  - `Ridge(alpha = 0.5)`
+
+**Best validation RMSE:** **`0.122291`**
+
+This is the current best model in the project so far.
+
+## 🏁 First Kaggle Submission
+
+The current best model was refit on the full training set and used to generate a first Kaggle submission.
+
+**Submitted model:**
+- Polynomial Ridge regression
+- degree 2 on selected numerical features
+- `alpha = 0.5`
+- target: `log(SalePrice)`
+
+**Results:**
+- Validation RMSE: **`0.122291`**
+- Kaggle public score: **`0.13057`**
+
+This is a solid first end-to-end result and confirms that the project pipeline is working correctly from preprocessing to final submission.
 
 ## 🛠️ Tools Used
 
@@ -134,6 +172,12 @@ pip install pandas numpy matplotlib scikit-learn jupyter
 jupyter notebook
 ```
 
+6. Open the notebook:
+
+```text
+notebooks/01_baseline_linear_regression.ipynb
+```
+
 ## 📈 What I Learned from This Project
 
 Through this project I practiced how key ML concepts translate into a real regression task:
@@ -146,14 +190,16 @@ Through this project I practiced how key ML concepts translate into a real regre
 - comparing training and validation performance
 - understanding overfitting and the role of regularization
 - seeing why scaling is important for Ridge regression
+- applying polynomial feature expansion as a basis-function approach
+- building a complete pipeline from exploration to Kaggle submission
 
 ## 🚀 Next Steps
 
-- test basis-function / polynomial feature expansions on selected numerical features
-- perform more systematic hyperparameter tuning
-- generate the first Kaggle submission with the current best model
-- improve visualizations and model comparison plots
-- expand documentation as the project evolves
+- evaluate the best model with cross-validation instead of a single validation split
+- compare multiple linear-model variants more systematically
+- improve notebook organization and naming
+- add model comparison plots and cleaner documentation
+- explore stronger tabular models after consolidating the linear-model workflow
 
 ---
 
