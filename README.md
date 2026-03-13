@@ -2,7 +2,7 @@
 
 Machine learning project based on the Kaggle competition **House Prices: Advanced Regression Techniques**.
 
-This repository documents a step-by-step approach to solving a real tabular regression problem using concepts studied in a university Machine Learning course. The project starts from a simple linear regression baseline and progressively improves through preprocessing, feature engineering, and regularization.
+This repository documents a step-by-step approach to solving a real tabular regression problem using concepts studied in a university Machine Learning course. The project starts from a simple linear regression baseline and progressively improves through preprocessing, feature engineering, regularization, and more robust model evaluation.
 
 ## 📌 Project Overview
 
@@ -18,6 +18,7 @@ The project follows an incremental workflow:
 6. Ridge regularization and hyperparameter tuning
 7. Polynomial feature expansion on selected variables
 8. Final refit on the full training set and Kaggle submission
+9. Cross-validation-based model selection
 
 ## 📂 Repository Structure
 
@@ -26,7 +27,8 @@ house-prices-ml/
 ├── notebooks/
 │   └── 01_baseline_linear_regression.ipynb
 ├── submissions/
-│   └── submission_poly_ridge_alpha_0_5.csv
+│   ├── submission_poly_ridge_alpha_0_5.csv
+│   └── submission_poly_ridge_alpha_2_0_cv.csv
 ├── data/                     # local Kaggle files (ignored from Git)
 ├── .gitignore
 └── README.md
@@ -94,17 +96,30 @@ This makes the regression problem more stable and is also aligned with the Kaggl
   - most-frequent imputation
   - one-hot encoding
 - Model:
-  - `Ridge(alpha = 0.5)`
+  - Ridge Regression
 
-**Best validation RMSE:** **`0.122291`**
+Two key versions of this model were tested:
 
-This is the current best model in the project so far.
+#### Hold-out tuned version
+- `Ridge(alpha = 0.5)`
+- **Validation RMSE:** **`0.122291`**
+- **Kaggle public score:** **`0.13057`**
 
-## 🏁 First Kaggle Submission
+#### Cross-validation tuned version
+- `Ridge(alpha = 2.0)`
+- selected with **5-fold cross-validation**
+- **Mean CV RMSE:** **`0.124359`**
+- **CV standard deviation:** **`0.014357`**
+- **Kaggle public score:** **`0.12691`**
 
-The current best model was refit on the full training set and used to generate a first Kaggle submission.
+This is the **current best model so far** in the project.
 
-**Submitted model:**
+## 🏁 Kaggle Submission Results
+
+### Submission 1
+**File:** `submission_poly_ridge_alpha_0_5.csv`
+
+**Model:**
 - Polynomial Ridge regression
 - degree 2 on selected numerical features
 - `alpha = 0.5`
@@ -114,7 +129,21 @@ The current best model was refit on the full training set and used to generate a
 - Validation RMSE: **`0.122291`**
 - Kaggle public score: **`0.13057`**
 
-This is a solid first end-to-end result and confirms that the project pipeline is working correctly from preprocessing to final submission.
+### Submission 2
+**File:** `submission_poly_ridge_alpha_2_0_cv.csv`
+
+**Model:**
+- Polynomial Ridge regression
+- degree 2 on selected numerical features
+- `alpha = 2.0`
+- selected by **5-fold cross-validation**
+- target: `log(SalePrice)`
+
+**Results:**
+- Mean CV RMSE: **`0.124359`**
+- Kaggle public score: **`0.12691`**
+
+The second submission improved over the first one, showing that cross-validation led to a better and more robust hyperparameter choice.
 
 ## 🛠️ Tools Used
 
@@ -191,15 +220,16 @@ Through this project I practiced how key ML concepts translate into a real regre
 - understanding overfitting and the role of regularization
 - seeing why scaling is important for Ridge regression
 - applying polynomial feature expansion as a basis-function approach
+- using cross-validation for more robust model selection
 - building a complete pipeline from exploration to Kaggle submission
 
 ## 🚀 Next Steps
 
-- evaluate the best model with cross-validation instead of a single validation split
-- compare multiple linear-model variants more systematically
-- improve notebook organization and naming
-- add model comparison plots and cleaner documentation
-- explore stronger tabular models after consolidating the linear-model workflow
+- clean up and rename the notebook structure as the project grows
+- add model comparison tables and plots
+- try more systematic feature engineering on numerical variables
+- test stronger tabular models after consolidating the linear-model workflow
+- improve project documentation and presentation for GitHub/portfolio purposes
 
 ---
 
